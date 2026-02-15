@@ -153,7 +153,7 @@ runBtn.addEventListener('click', async () => {
             runInput.textContent = data.input || 'N/A';
             runExpected.textContent = data.expected || 'N/A';
             runOutputContent.textContent = data.output || '(no output)';
-            
+
             if (data.passed) {
                 runOutputContent.className = 'value';
                 runStatus.textContent = 'PASSED';
@@ -231,7 +231,7 @@ submitBtn.addEventListener('click', async () => {
                 const statusClass = result.passed ? 'status-passed' : 'status-failed';
                 const outputClass = result.passed ? '' : 'output-failed';
                 const outputDisplay = result.output || '(no output)';
-                
+
                 tableHTML += `
                     <tr>
                         <td>#${index + 1}</td>
@@ -254,12 +254,82 @@ submitBtn.addEventListener('click', async () => {
         }
 
         submitResults.style.display = 'block';
+
+        // Display Smart Analysis
+        if (data.code_intelligence && data.code_intelligence.success) {
+            displayAnalysis(data.code_intelligence);
+        } else {
+            document.getElementById('analysisResults').style.display = 'none';
+        }
+
     } catch (error) {
-        showError('Failed to submit code: ' + error.message);
+        let msg = 'Failed to submit code: ' + error.message;
+        if (error.message.includes('Failed to fetch')) {
+            msg += '. Is the server running at http://127.0.0.1:5000? If you are opening index.html directly, make sure to run "python app.py" and use the localhost URL.';
+        }
+        showError(msg);
     } finally {
         setLoading(false);
     }
 });
+
+function displayAnalysis(data) {
+    const analysisSection = document.getElementById('analysisResults');
+    analysisSection.style.display = 'block';
+
+    // Update Scores
+    updateScore('overallScore', data.overall_quality_score);
+    updateScore('maintainabilityIndex', data.maintainability_index);
+
+    // Update Readability Metrics
+    const readabilityList = document.getElementById('readabilityMetrics');
+    readabilityList.innerHTML = `
+        <li>Comment Ratio: <span>${data.readability.comment_ratio}%</span></li>
+        <li>Avg Line Length: <span>${data.readability.average_line_length} chars</span></li>
+        <li>Long Lines: <span>${data.readability.long_lines_count}</span></li>
+    `;
+
+    // Update Complexity Metrics
+    const complexityList = document.getElementById('complexityMetrics');
+    complexityList.innerHTML = `
+        <li>Cyclomatic Complexity: <span>${data.structural_complexity.cyclomatic_complexity}</span></li>
+        <li>Max Nesting Depth: <span>${data.structural_complexity.max_nesting_depth}</span></li>
+        <li>Functions: <span>${data.structural_complexity.total_functions}</span></li>
+    `;
+
+    // Update Variable Metrics
+    const variableList = document.getElementById('variableMetrics');
+    variableList.innerHTML = `
+        <li>Total Variables: <span>${data.variable_analysis.total_variables}</span></li>
+        <li>Meaningful Names: <span>${data.variable_analysis.meaningful_naming_ratio}%</span></li>
+        <li>Short Names: <span>${data.variable_analysis.short_variable_names}</span></li>
+    `;
+
+    // Update Suggestions
+    const suggestionsList = document.getElementById('suggestionsList');
+    if (data.suggestions && data.suggestions.length > 0) {
+        suggestionsList.innerHTML = data.suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    } else {
+        suggestionsList.innerHTML = '<li>No specific suggestions. Good job!</li>';
+    }
+}
+
+function updateScore(elementId, score) {
+    const element = document.getElementById(elementId);
+    element.textContent = score;
+
+    // Remove existing classes
+    element.classList.remove('score-good', 'score-average', 'score-poor');
+
+    // Add appropriate class
+    if (score >= 80) {
+        element.classList.add('score-good');
+    } else if (score >= 60) {
+        element.classList.add('score-average');
+    } else {
+        element.classList.add('score-poor');
+    }
+}
 
 // Helper function to escape HTML
 function escapeHtml(text) {

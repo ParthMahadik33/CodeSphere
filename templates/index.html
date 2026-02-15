@@ -79,6 +79,46 @@ Output: 5 6</pre>
             <div id="testCasesTable" class="test-cases-table"></div>
         </div>
 
+        <!-- Smart Analysis Section -->
+        <div id="analysisResults" class="analysis-section" style="display: none;">
+            <h3>Smart Code Analysis</h3>
+            
+            <div class="analysis-grid">
+                <!-- Scores -->
+                <div class="analysis-card score-card">
+                    <h4>Overall Quality</h4>
+                    <div class="score-circle" id="overallScore">0</div>
+                </div>
+                
+                <div class="analysis-card score-card">
+                    <h4>Maintainability</h4>
+                    <div class="score-circle" id="maintainabilityIndex">0</div>
+                </div>
+                
+                <!-- Metrics -->
+                <div class="analysis-card metrics-card">
+                    <h4>Readability</h4>
+                    <ul id="readabilityMetrics" class="metrics-list"></ul>
+                </div>
+                
+                <div class="analysis-card metrics-card">
+                    <h4>Complexity</h4>
+                    <ul id="complexityMetrics" class="metrics-list"></ul>
+                </div>
+
+                <div class="analysis-card metrics-card">
+                    <h4>Variables</h4>
+                    <ul id="variableMetrics" class="metrics-list"></ul>
+                </div>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="analysis-suggestions">
+                <h4>Suggestions for Improvement</h4>
+                <ul id="suggestionsList"></ul>
+            </div>
+        </div>
+
         <div id="errorMessage" class="error-message" style="display: none;"></div>
     </div>
 

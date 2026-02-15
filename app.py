@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import subprocess
 import os
 import json
 import time
 import uuid
+from code_intelligence import CodeIntelligenceEngine
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Create temp directory if it doesn't exist
 TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp')
@@ -238,11 +241,27 @@ def submit_code():
             except:
                 pass
             
+            # Analyze code quality using Code Intelligence Engine
+            code_intelligence = None
+            try:
+                intelligence_engine = CodeIntelligenceEngine()
+                code_intelligence = intelligence_engine.analyze(code)
+            except Exception as e:
+                # If analysis fails, continue without breaking submission
+                code_intelligence = {
+                    "success": False,
+                    "error": f"Analysis error: {str(e)}",
+                    "overall_quality_score": 0,
+                    "maintainability_index": 0,
+                    "suggestions": []
+                }
+            
             return jsonify({
                 'passed': passed,
                 'total': total,
                 'execution_time': round(total_execution_time, 2),
-                'results': results
+                'results': results,
+                'code_intelligence': code_intelligence
             }), 200
             
         except Exception as e:
@@ -251,12 +270,27 @@ def submit_code():
                 os.remove(filename)
             except:
                 pass
+            # Analyze code quality even if execution failed
+            code_intelligence = None
+            try:
+                intelligence_engine = CodeIntelligenceEngine()
+                code_intelligence = intelligence_engine.analyze(code)
+            except Exception:
+                code_intelligence = {
+                    "success": False,
+                    "error": "Analysis unavailable",
+                    "overall_quality_score": 0,
+                    "maintainability_index": 0,
+                    "suggestions": []
+                }
+            
             return jsonify({
                 'error': f'Execution error: {str(e)}',
                 'passed': 0,
                 'total': total,
                 'execution_time': 0,
-                'results': results
+                'results': results,
+                'code_intelligence': code_intelligence
             }), 200
             
     except FileNotFoundError:
