@@ -15,6 +15,23 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp')
 if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR)
 
+def cleanup_temp_files():
+    """Remove all files in the temp directory on startup."""
+    try:
+        for filename in os.listdir(TEMP_DIR):
+            file_path = os.path.join(TEMP_DIR, filename)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                print(f"Error deleting {file_path}: {e}")
+        print("Temp directory cleaned up.")
+    except Exception as e:
+        print(f"Error cleaning temp directory: {e}")
+
+# Clean up on startup
+cleanup_temp_files()
+
 
 @app.route('/')
 def index():
@@ -74,9 +91,10 @@ def run_code():
             
             # Clean up file
             try:
-                os.remove(filename)
-            except:
-                pass
+                if os.path.exists(filename):
+                     os.remove(filename)
+            except Exception as e:
+                print(f"Error deleting temp file {filename}: {e}")
             
             # Get actual output
             actual_output = result.stdout.strip() if result.stdout else ''
@@ -109,9 +127,11 @@ def run_code():
         except subprocess.TimeoutExpired:
             # Clean up file
             try:
-                os.remove(filename)
-            except:
-                pass
+                if os.path.exists(filename):
+                    os.remove(filename)
+            except Exception as e:
+                 print(f"Error deleting temp file {filename}: {e}")
+
             return jsonify({
                 'error': 'Execution timeout (exceeded 2 seconds)',
                 'expected': expected,
@@ -123,9 +143,11 @@ def run_code():
         except Exception as e:
             # Clean up file
             try:
-                os.remove(filename)
-            except:
-                pass
+                if os.path.exists(filename):
+                    os.remove(filename)
+            except Exception as e:
+                 print(f"Error deleting temp file {filename}: {e}")
+
             return jsonify({
                 'error': f'Runtime error: {str(e)}',
                 'expected': expected,
@@ -237,9 +259,10 @@ def submit_code():
             
             # Clean up file
             try:
-                os.remove(filename)
-            except:
-                pass
+                if os.path.exists(filename):
+                    os.remove(filename)
+            except Exception as e:
+                print(f"Error deleting temp file {filename}: {e}")
             
             # Analyze code quality using Code Intelligence Engine
             code_intelligence = None
@@ -267,9 +290,10 @@ def submit_code():
         except Exception as e:
             # Clean up file
             try:
-                os.remove(filename)
-            except:
-                pass
+                if os.path.exists(filename):
+                     os.remove(filename)
+            except Exception as e:
+                 print(f"Error deleting temp file {filename}: {e}")
             # Analyze code quality even if execution failed
             code_intelligence = None
             try:
