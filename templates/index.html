@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeInsight - Online Coding Judge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CodeInsight</h1>
+            <p class="subtitle">Online Coding Judge</p>
+        </header>
+
+        <div class="problem-section">
+            <h2>Problem Statement</h2>
+            <div class="problem-content">
+                <h3>Find Missing Numbers</h3>
+                <p><strong>Problem Statement:</strong></p>
+                <p>You are given an array of integers where each number is in the range [1, n]. Some numbers appear twice and others appear once. Return all numbers in the range [1, n] that do not appear in the array.</p>
+                <p><strong>Example:</strong></p>
+                <pre>Input: 4 3 2 7 8 2 3 1
+Output: 5 6</pre>
+            </div>
+        </div>
+
+        <div class="editor-section">
+            <div class="editor-header">
+                <label for="language">Language:</label>
+                <select id="language" disabled>
+                    <option value="python" selected>Python</option>
+                </select>
+            </div>
+            <div id="codeEditor" class="monaco-editor-container"></div>
+        </div>
+
+        <div class="button-section">
+            <button id="runBtn" class="btn btn-run">Run</button>
+            <button id="submitBtn" class="btn btn-submit">Submit</button>
+        </div>
+
+        <div id="runOutput" class="output-section" style="display: none;">
+            <h3>Test Case 1 Result</h3>
+            <div class="run-test-info">
+                <div class="test-info-item">
+                    <span class="label">Input:</span>
+                    <span id="runInput" class="value"></span>
+                </div>
+                <div class="test-info-item">
+                    <span class="label">Expected:</span>
+                    <span id="runExpected" class="value"></span>
+                </div>
+                <div class="test-info-item">
+                    <span class="label">Your Output:</span>
+                    <span id="runOutputContent" class="value"></span>
+                </div>
+                <div class="test-info-item">
+                    <span class="label">Status:</span>
+                    <span id="runStatus" class="value"></span>
+                </div>
+            </div>
+            <div id="runExecutionTime" class="execution-time"></div>
+        </div>
+
+        <div id="submitResults" class="results-section" style="display: none;">
+            <h3>Submission Results</h3>
+            <div class="results-summary">
+                <div class="summary-item">
+                    <span class="label">Test Cases Passed:</span>
+                    <span id="passedCount" class="value">0</span> / <span id="totalCount" class="value">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Execution Time:</span>
+                    <span id="totalExecutionTime" class="value">0</span> ms
+                </div>
+            </div>
+            <div id="testCasesTable" class="test-cases-table"></div>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+
