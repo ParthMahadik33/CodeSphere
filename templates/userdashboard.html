@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CodeSphere | User Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-nav {
+            background-color: rgba(19, 164, 236, 0.15);
+            border-left: 3px solid #13a4ec;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-64 flex-shrink-0 bg-white dark:bg-[#111c22] border-r border-slate-200 dark:border-slate-800 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="h-10 w-10 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-2xl">terminal</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">CodeSphere</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pro Developer Hub</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav text-primary font-medium"
+                    href="/dashboard">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    href="/problems">
+                    <span class="material-symbols-outlined">code</span>
+                    <span>Problems</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    href="/playground">
+                    <span class="material-symbols-outlined">experiment</span>
+                    <span>Playground</span>
+                </a>
+                {% if user.is_admin %}
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    href="/admin/dashboard">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <span>Admin</span>
+                </a>
+                {% endif %}
+            </nav>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                    href="/logout">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+            <!-- Header Section -->
+            <header
+                class="flex items-center justify-between px-8 py-6 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome back, {{ user.username }}</h2>
+                    <p class="text-slate-500 dark:text-slate-400">Keep up the great work!</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <div
+                        class="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-primary overflow-hidden">
+                        <img class="w-full h-full object-cover"
+                            data-alt="User avatar placeholder with abstract geometric pattern"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtB7HaYzDdZizOdSJXqfM8-yiq5_DnTFVbhe7VxtMkQwN7Jhbte4ug6eeyPRVFxk9XO_qwkISv_T5iVCgTQNh9S7ZuibfzZxqM74NAHZiX1V9pDWTvqva3CmjrCtuuF1yjf0tPrAL1A5bVzFlXc551uNTv78i6YvmoqXvfpOrcJEdPtlKYVNu1tdRohjeBbyprv_fUstKpqc8bLM2iGwZiQL2nwGNdpLCq55KgqQC0YJ2Me8qwtuiIGN2JJgfPZW2znxK8ZRNCjW0" />
+                    </div>
+                </div>
+            </header>
+            <div class="px-8 pb-12 space-y-8">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                    <div
+                        class="bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-50 dark:bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-900/20 border border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-200 dark:border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-800 rounded-lg p-4 flex items-center gap-2">
+                        <span
+                            class="material-symbols-outlined text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-500">{%
+                            if category == 'error' %}error{% elif category == 'success' %}check_circle{% else %}info{%
+                            endif %}</span>
+                        <span
+                            class="text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-700 dark:text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-300">{{
+                            message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+                <!-- KPI Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Solved</span>
+                            <span
+                                class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full font-bold">+12%</span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold dark:text-white">{{ total_solved }}</span>
+                            <span class="text-slate-400 text-sm mb-1">problems solved</span>
+                        </div>
+                        <div class="mt-4 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full w-[28%] rounded-full"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Accuracy</span>
+                            <span
+                                class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-bold">+2.4%</span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold dark:text-white">{{ accuracy }}%</span>
+                        </div>
+                        <div class="mt-4 flex gap-1 h-8 items-end">
+                            <div class="bg-primary/40 w-full h-[60%] rounded-t-sm"></div>
+                            <div class="bg-primary/40 w-full h-[80%] rounded-t-sm"></div>
+                            <div class="bg-primary/40 w-full h-[70%] rounded-t-sm"></div>
+                            <div class="bg-primary w-full h-[90%] rounded-t-sm"></div>
+                            <div class="bg-primary/40 w-full h-[75%] rounded-t-sm"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Weekly Progress</span>
+                            <span class="text-slate-400 text-xs">This Week</span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold dark:text-white">42</span>
+                            <span class="text-slate-400 text-sm mb-1">problems</span>
+                        </div>
+                        <div class="mt-4 flex justify-between text-[10px] text-slate-500 font-bold">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Code Quality Metrics Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div
+                        class="bg-white dark:bg-slate-900/50 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2 dark:text-white">
+                            <span class="material-symbols-outlined text-primary">analytics</span>
+                            Readability Score
+                        </h3>
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="relative flex items-center justify-center w-40 h-40">
+                                <svg class="w-full h-full" viewbox="0 0 36 36">
+                                    <path class="stroke-slate-100 dark:stroke-slate-800"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none" stroke-width="3"></path>
+                                    <path class="stroke-primary"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none" stroke-dasharray="92, 100" stroke-linecap="round" stroke-width="3">
+                                    </path>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-3xl font-bold dark:text-white">{{ avg_quality|int }}</span>
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">{% if
+                                        avg_quality >= 90 %}Excellent{% elif avg_quality >= 70 %}Good{% elif avg_quality
+                                        >= 50 %}Fair{% else %}Needs Work{% endif %}</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-slate-500">Naming Conventions</span>
+                                        <span class="text-primary">98%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full">
+                                        <div class="bg-primary h-full w-[98%]"></div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-slate-500">Comments Ratio</span>
+                                        <span class="text-primary">85%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full">
+                                        <div class="bg-primary h-full w-[85%]"></div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-slate-500">Modularity</span>
+                                        <span class="text-primary">94%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full">
+                                        <div class="bg-primary h-full w-[94%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900/50 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold flex items-center gap-2 dark:text-white">
+                                <span class="material-symbols-outlined text-rose-500">monitoring</span>
+                                Complexity Trend
+                            </h3>
+                            <span class="text-xs font-bold text-green-500 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">trending_down</span> -2% Over Time
+                            </span>
+                        </div>
+                        <div class="h-44 w-full relative">
+                            <svg fill="none" height="100%" preserveaspectratio="none" viewbox="0 0 478 150" width="100%"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M0 109C50 109 100 21 150 21C200 21 250 120 300 120C350 120 400 40 478 25V150H0V109Z"
+                                    fill="url(#complexityGradient)"></path>
+                                <path d="M0 109C50 109 100 21 150 21C200 21 250 120 300 120C350 120 400 40 478 25"
+                                    stroke="#13a4ec" stroke-linecap="round" stroke-width="3"></path>
+                                <defs>
+                                    <lineargradient gradientunits="userSpaceOnUse" id="complexityGradient" x1="0" x2="0"
+                                        y1="0" y2="150">
+                                        <stop stop-color="#13a4ec" stop-opacity="0.2"></stop>
+                                        <stop offset="1" stop-color="#13a4ec" stop-opacity="0"></stop>
+                                    </lineargradient>
+                                </defs>
+                            </svg>
+                            <div class="flex justify-between mt-4 px-2">
+                                <p class="text-slate-400 text-[11px] font-bold">WEEK 1</p>
+                                <p class="text-slate-400 text-[11px] font-bold">WEEK 2</p>
+                                <p class="text-slate-400 text-[11px] font-bold">WEEK 3</p>
+                                <p class="text-slate-400 text-[11px] font-bold">WEEK 4</p>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+                            <p class="text-xs text-blue-700 dark:text-blue-300">
+                                <strong>Insight:</strong> Your cyclomatic complexity has decreased. Your code is
+                                becoming more maintainable!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Submissions Table -->
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div
+                        class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="text-lg font-bold dark:text-white">Recent Submissions</h3>
+                        <a href="/submissions" class="text-primary text-sm font-semibold hover:underline">View All</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Problem Name</th>
+                                    <th class="px-6 py-4">Language</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Difficulty</th>
+                                    <th class="px-6 py-4 text-right">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                                {% if recent_submissions %}
+                                {% for submission in recent_submissions %}
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-6 py-4 font-medium dark:text-slate-200">
+                                        {% if submission.problem %}
+                                        <a href="/solve/{{ submission.problem_id }}" class="hover:text-primary">{{
+                                            submission.problem.title }}</a>
+                                        {% else %}
+                                        <span class="text-slate-500">Problem deleted</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="flex items-center gap-2">
+                                            <span
+                                                class="h-2 w-2 rounded-full {% if submission.language == 'python' %}bg-yellow-400{% elif submission.language == 'cpp' %}bg-blue-400{% else %}bg-orange-400{% endif %}"></span>
+                                            {{ submission.language|title }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="inline-flex items-center gap-1 {% if submission.status == 'Accepted' %}text-green-500{% elif submission.status == 'Runtime Error' %}text-rose-500{% else %}text-orange-500{% endif %} font-bold text-xs">
+                                            <span class="material-symbols-outlined text-sm">{% if submission.status ==
+                                                'Accepted' %}check_circle{% else %}cancel{% endif %}</span>
+                                            {{ submission.status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {% if submission.problem %}
+                                        <span
+                                            class="{% if submission.problem.difficulty == 'Easy' %}text-green-500 bg-green-500/10{% elif submission.problem.difficulty == 'Medium' %}text-orange-500 bg-orange-500/10{% else %}text-rose-500 bg-rose-500/10{% endif %} px-2 py-0.5 rounded text-[10px] font-black uppercase">
+                                            {{ submission.problem.difficulty }}
+                                        </span>
+                                        {% else %}
+                                        <span class="text-slate-500 text-xs">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400 text-sm">{{
+                                        submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-slate-500">No submissions yet.
+                                        Start solving problems!</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

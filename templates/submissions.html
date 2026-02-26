@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - My Submissions</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/dashboard" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Dashboard
+            </a>
+            <h1 class="text-4xl font-bold mb-2">My Submissions</h1>
+            <p class="text-slate-500">View all your code submissions and their results</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mb-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Status</label>
+                    <select name="status" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+                        <option value="">All Statuses</option>
+                        <option value="Accepted" {% if current_status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="Wrong Answer" {% if current_status == 'Wrong Answer' %}selected{% endif %}>Wrong Answer</option>
+                        <option value="Runtime Error" {% if current_status == 'Runtime Error' %}selected{% endif %}>Runtime Error</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Problem</label>
+                    <select name="problem" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+                        <option value="">All Problems</option>
+                        {% for prob in user_problems %}
+                        <option value="{{ prob.id }}" {% if current_problem|string == prob.id|string %}selected{% endif %}>{{ prob.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                        Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Submissions Table -->
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold">
+                        <tr>
+                            <th class="px-6 py-4">Problem</th>
+                            <th class="px-6 py-4">Language</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Test Cases</th>
+                            <th class="px-6 py-4">Time</th>
+                            <th class="px-6 py-4 text-right">Date</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                        {% if submissions %}
+                            {% for submission in submissions %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="px-6 py-4 font-medium dark:text-slate-200">
+                                    {% if submission.problem %}
+                                        <a href="/solve/{{ submission.problem_id }}" class="hover:text-primary">{{ submission.problem.title }}</a>
+                                    {% else %}
+                                        <span class="text-slate-500">Problem deleted</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">{{ submission.language|title }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1 {% if submission.status == 'Accepted' %}text-green-500{% elif submission.status == 'Runtime Error' %}text-rose-500{% else %}text-orange-500{% endif %} font-bold text-xs">
+                                        <span class="material-symbols-outlined text-sm">{% if submission.status == 'Accepted' %}check_circle{% else %}cancel{% endif %}</span>
+                                        {{ submission.status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    {{ submission.test_cases_passed }}/{{ submission.total_test_cases }}
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    {% if submission.execution_time %}
+                                        {{ "%.3f"|format(submission.execution_time) }}s
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400 text-sm">
+                                    {{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="/submission/{{ submission.id }}" class="text-primary hover:underline text-sm">View Details</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-8 text-center text-slate-500">No submissions found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

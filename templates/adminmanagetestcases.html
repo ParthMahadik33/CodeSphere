@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - Manage Test Cases</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-6xl mx-auto px-6 py-8">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-50 dark:bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-900/20 border border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-200 dark:border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-800 rounded-lg p-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-500">{% if category == 'error' %}error{% elif category == 'success' %}check_circle{% else %}info{% endif %}</span>
+                            <span class="text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-700 dark:text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-300">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/admin/dashboard" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Admin Dashboard
+            </a>
+            <h1 class="text-4xl font-bold mb-2">Manage Test Cases</h1>
+            <p class="text-slate-500">{{ problem.title }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Add Test Case Form -->
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-xl font-bold mb-4">Add New Test Case</h2>
+                <form method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="input_data">Input Data</label>
+                        <textarea id="input_data" name="input_data" required rows="4"
+                                  class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none font-mono text-sm"
+                                  placeholder="Enter input data (e.g., 1 2 3)"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="expected_output">Expected Output</label>
+                        <textarea id="expected_output" name="expected_output" required rows="4"
+                                  class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none font-mono text-sm"
+                                  placeholder="Enter expected output"></textarea>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="is_hidden" name="is_hidden"
+                               class="w-4 h-4 text-primary bg-slate-100 border-slate-300 rounded focus:ring-primary">
+                        <label for="is_hidden" class="text-sm">Hide this test case from users</label>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2">
+                        <span>Add Test Case</span>
+                        <span class="material-symbols-outlined text-sm">add</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Existing Test Cases -->
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-xl font-bold mb-4">Existing Test Cases ({{ test_cases|length }})</h2>
+                {% if test_cases %}
+                <div class="space-y-4 max-h-96 overflow-y-auto">
+                    {% for test_case in test_cases %}
+                    <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold">Test Case #{{ test_case.id }}</span>
+                            {% if test_case.is_hidden %}
+                            <span class="px-2 py-1 bg-orange-500/10 text-orange-500 text-xs rounded">Hidden</span>
+                            {% else %}
+                            <span class="px-2 py-1 bg-green-500/10 text-green-500 text-xs rounded">Visible</span>
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <span class="text-slate-500">Input:</span>
+                                <pre class="mt-1 font-mono bg-slate-900 dark:bg-slate-900 p-2 rounded text-xs overflow-x-auto">{{ test_case.input_data }}</pre>
+                            </div>
+                            <div>
+                                <span class="text-slate-500">Expected Output:</span>
+                                <pre class="mt-1 font-mono bg-slate-900 dark:bg-slate-900 p-2 rounded text-xs overflow-x-auto">{{ test_case.expected_output }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">code_off</span>
+                    <p class="text-slate-500">No test cases yet. Add one above.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

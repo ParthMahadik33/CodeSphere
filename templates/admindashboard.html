@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-50 dark:bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-900/20 border border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-200 dark:border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-800 rounded-lg p-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-500">{% if category == 'error' %}error{% elif category == 'success' %}check_circle{% else %}info{% endif %}</span>
+                            <span class="text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-700 dark:text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-300">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">Admin Dashboard</h1>
+                <p class="text-slate-500">Manage problems, test cases, and view statistics</p>
+            </div>
+            <a href="/logout" class="text-rose-500 hover:underline flex items-center gap-2">
+                <span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-slate-500 text-sm font-medium">Total Problems</span>
+                    <span class="material-symbols-outlined text-primary text-2xl">code</span>
+                </div>
+                <div class="text-4xl font-bold">{{ total_problems }}</div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-slate-500 text-sm font-medium">Total Users</span>
+                    <span class="material-symbols-outlined text-primary text-2xl">people</span>
+                </div>
+                <div class="text-4xl font-bold">{{ total_users }}</div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-slate-500 text-sm font-medium">Total Submissions</span>
+                    <span class="material-symbols-outlined text-primary text-2xl">send</span>
+                </div>
+                <div class="text-4xl font-bold">{{ total_submissions }}</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="/admin/problems/add" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined">add</span>
+                    Add New Problem
+                </a>
+                <a href="/problems" class="border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined">list</span>
+                    View All Problems
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

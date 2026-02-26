@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - Add New Problem</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-4xl mx-auto px-6 py-8">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-50 dark:bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-900/20 border border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-200 dark:border-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-800 rounded-lg p-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-500">{% if category == 'error' %}error{% elif category == 'success' %}check_circle{% else %}info{% endif %}</span>
+                            <span class="text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-700 dark:text-{% if category == 'error' %}red{% elif category == 'success' %}green{% else %}blue{% endif %}-300">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/admin/dashboard" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Admin Dashboard
+            </a>
+            <h1 class="text-4xl font-bold mb-2">Add New Problem</h1>
+            <p class="text-slate-500">Create a new coding problem for users to solve</p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-8">
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="title">Problem Title</label>
+                    <input type="text" id="title" name="title" required
+                           class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+                           placeholder="e.g., Two Sum">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="description">Problem Description</label>
+                    <textarea id="description" name="description" required rows="10"
+                              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none"
+                              placeholder="Describe the problem, input format, output format, and examples..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="difficulty">Difficulty</label>
+                        <select id="difficulty" name="difficulty" required
+                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="category">Category</label>
+                        <input type="text" id="category" name="category" required
+                               class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+                               placeholder="e.g., Arrays, Dynamic Programming">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 pt-4">
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-lg font-bold transition-all flex items-center gap-2">
+                        <span>Create Problem</span>
+                        <span class="material-symbols-outlined text-sm">add</span>
+                    </button>
+                    <a href="/admin/dashboard" class="border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 px-8 py-3 rounded-lg font-bold transition-all">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CodeSphere - Solve Problem</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <!-- Monaco Editor CDN -->
+    <script>
+        // Configure Monaco Editor loader (only if require is not already defined)
+        if (typeof require === 'undefined') {
+            window.require = { paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } };
+        } else {
+            require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        #editor {
+            width: 100%;
+            height: 500px;
+            min-height: 400px;
+        }
+
+        .editor-container {
+            min-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            #editor {
+                height: 400px;
+            }
+
+            .editor-container {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <a href="/problems" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Problems
+            </a>
+            <h1 class="text-3xl font-bold mb-2">{{ problem.title }}</h1>
+            <div class="flex items-center gap-4">
+                <span
+                    class="px-3 py-1 rounded-full text-xs font-bold {% if problem.difficulty == 'Easy' %}bg-green-500/10 text-green-500{% elif problem.difficulty == 'Medium' %}bg-orange-500/10 text-orange-500{% else %}bg-rose-500/10 text-rose-500{% endif %}">
+                    {{ problem.difficulty }}
+                </span>
+                <span class="text-slate-500 text-sm">{{ problem.category }}</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Problem Description -->
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-xl font-bold mb-4">Problem Description</h2>
+                <div class="prose dark:prose-invert max-w-none">
+                    <p class="whitespace-pre-wrap">{{ problem.description }}</p>
+                </div>
+            </div>
+
+            <!-- Code Editor -->
+            <div
+                class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col editor-container">
+                <div
+                    class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                    <h2 class="text-xl font-bold">Code Editor</h2>
+                    <div class="flex items-center gap-2">
+                        <select id="language"
+                            class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <option value="python">Python</option>
+                            <option value="cpp">C++</option>
+                            <option value="java">Java</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Monaco Editor Container -->
+                <div id="editor" style="flex: 1 1 auto;"></div>
+                <!-- Fallback textarea (hidden, used only if Monaco fails) -->
+                <textarea id="code"
+                    class="hidden w-full h-96 p-4 font-mono text-sm bg-slate-50 dark:bg-slate-900 border-0 focus:outline-none resize-none"
+                    placeholder="Write your code here...">def solve():
+    # Your code here
+    pass</textarea>
+                <div
+                    class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                    <button id="submitBtn"
+                        class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Submit</span>
+                        <span class="material-symbols-outlined text-sm">send</span>
+                    </button>
+                    <button id="runBtn"
+                        class="border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 px-6 py-2 rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">play_arrow</span>
+                        Run Test
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section (MVP Integrated 4-Panel Grid) -->
+        <div id="results" class="mt-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Panel 1: Test Case Results -->
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col transition-all hover:-translate-y-1 hover:shadow-lg">
+                    <h2
+                        class="text-xl font-bold mb-4 border-b border-slate-200 dark:border-slate-800 pb-2 text-slate-800 dark:text-slate-100">
+                        Test Case Results</h2>
+                    <div id="testCaseResults" class="flex-1 overflow-y-auto max-h-[400px] pr-2">
+                        <p class="text-slate-500 italic text-center py-4">Click "Run Test" or "Submit" to see test
+                            results</p>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Execution Metrics -->
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col transition-all hover:-translate-y-1 hover:shadow-lg">
+                    <h2
+                        class="text-xl font-bold mb-4 border-b border-slate-200 dark:border-slate-800 pb-2 text-slate-800 dark:text-slate-100">
+                        Execution Metrics</h2>
+                    <div id="executionMetrics" class="flex-1 flex flex-col justify-center space-y-2">
+                        <p class="text-slate-500 italic text-center py-4">Click "Run Test" or "Submit" to see execution
+                            metrics</p>
+                    </div>
+                </div>
+
+                <!-- Smart Code Analysis Card -->
+                <div id="smartCodeAnalysis"
+                    class="md:col-span-2 bg-white dark:bg-slate-900 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 mt-2 shadow-sm flex flex-col hidden">
+                    <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Smart Code Analysis</h2>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Overall Quality -->
+                        <div
+                            class="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-lg p-5 flex flex-col items-center justify-center shadow-sm relative">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Overall Quality
+                            </h3>
+                            <div
+                                class="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-green-500">
+                                <span id="uiOverallScore" class="text-3xl font-bold text-green-500">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Maintainability -->
+                        <div
+                            class="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-lg p-5 flex flex-col items-center justify-center shadow-sm relative">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Maintainability
+                            </h3>
+                            <div
+                                class="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-green-500">
+                                <span id="uiMaintainScore" class="text-3xl font-bold text-green-500">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Readability -->
+                        <div
+                            class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg p-4 flex flex-col shadow-sm">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">
+                                Readability</h3>
+                            <div class="space-y-3 text-sm flex-1 flex flex-col justify-center">
+                                <div class="flex justify-between"><span class="text-slate-500">Comment Ratio:</span>
+                                    <span id="uiCommentRatio"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Avg Line Length:</span>
+                                    <span id="uiAvgLineLength"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Long Lines:</span> <span
+                                        id="uiLongLines"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Complexity -->
+                        <div
+                            class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg p-4 flex flex-col shadow-sm">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">
+                                Complexity</h3>
+                            <div class="space-y-3 text-sm flex-1 flex flex-col justify-center">
+                                <div class="flex justify-between"><span class="text-slate-500">Cyclomatic
+                                        Complexity:</span> <span id="uiCyclomatic"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Max Nesting Depth:</span>
+                                    <span id="uiMaxNesting"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Functions:</span> <span
+                                        id="uiFunctions"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Variables -->
+                        <div
+                            class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg p-4 flex flex-col shadow-sm">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">
+                                Variables</h3>
+                            <div class="space-y-3 text-sm flex-1 flex flex-col justify-center">
+                                <div class="flex justify-between"><span class="text-slate-500">Total Variables:</span>
+                                    <span id="uiTotalVars"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Meaningful Names:</span>
+                                    <span id="uiMeaningfulNames"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Short Names:</span> <span
+                                        id="uiShortNames"
+                                        class="font-medium text-slate-800 dark:text-slate-200">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestions for Improvement -->
+                    <div
+                        class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 mt-2">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 mb-4">Suggestions for Improvement</h3>
+                        <div id="uiSuggestionsList" class="space-y-3">
+                            <!-- JS populates this -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor.js -->
+    <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+
+    <script>
+        // Initialize Monaco Editor
+        if (typeof require !== 'undefined') {
+            require(['vs/editor/editor.main'], function () {
+                // Monaco is loaded, initialize our editor
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    if (window.CodeEditor) {
+                        window.CodeEditor.init();
+                    } else {
+                        console.error('CodeEditor module not loaded');
+                        // Show fallback textarea
+                        const editorContainer = document.getElementById('editor');
+                        const textarea = document.getElementById('code');
+                        if (editorContainer && textarea) {
+                            editorContainer.style.display = 'none';
+                            textarea.classList.remove('hidden');
+                        }
+                    }
+                }, 100);
+            });
+        } else {
+            console.error('Monaco Editor loader not available');
+            // Show fallback textarea
+            const editorContainer = document.getElementById('editor');
+            const textarea = document.getElementById('code');
+            if (editorContainer && textarea) {
+                editorContainer.style.display = 'none';
+                textarea.classList.remove('hidden');
+            }
+        }
+
+        // DOM elements
+        const submitBtn = document.getElementById('submitBtn');
+        const runBtn = document.getElementById('runBtn');
+        const languageSelect = document.getElementById('language');
+        const resultsDiv = document.getElementById('results');
+
+        // Check if required elements exist
+        if (!submitBtn || !runBtn || !languageSelect || !resultsDiv) {
+            console.error('Required DOM elements not found');
+        }
+
+        // Helper function to get code from editor
+        function getCode() {
+            if (window.CodeEditor && window.CodeEditor.isReady()) {
+                return window.CodeEditor.getCode();
+            }
+            // Fallback to textarea
+            const textarea = document.getElementById('code');
+            return textarea ? textarea.value : '';
+        }
+
+        // Helper function to submit code
+        async function submitCode() {
+            const code = getCode();
+            const language = languageSelect ? languageSelect.value : 'python';
+
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+
+            if (!submitBtn || !runBtn) {
+                console.error('Submit or Run button not found');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            runBtn.disabled = true;
+            const originalSubmitHTML = submitBtn.innerHTML;
+            const originalRunHTML = runBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Processing...';
+            runBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Running...';
+            if (resultsDiv) {
+                resultsDiv.classList.add('hidden');
+            }
+
+            const formData = new FormData();
+            formData.append('code', code);
+            formData.append('language', language);
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        // Don't set Content-Type, let browser set it with boundary for FormData
+                    },
+                    credentials: 'same-origin' // Include cookies for authentication
+                });
+
+                if (!response.ok) {
+                    // Try to get error message from response
+                    let errorMsg = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorData.message || errorMsg;
+                    } catch (e) {
+                        // If response is not JSON, use status text
+                        errorMsg = response.statusText || errorMsg;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+
+                // Display results
+                resultsDiv.classList.remove('hidden');
+
+                // --- Panel 1: Test Cases ---
+                const testResultsDiv = document.getElementById('testCaseResults');
+                if (!data.results || data.results.length === 0) {
+                    testResultsDiv.innerHTML = '<p class="text-slate-500 italic text-center py-4">No test results available</p>';
+                } else {
+                    let html = `
+                        <div class="flex gap-4 mb-4">
+                            <span class="text-green-500 font-bold">✓ Passed: ${data.test_cases_passed}</span>
+                            <span class="text-red-500 font-bold">✗ Failed: ${data.total_test_cases - data.test_cases_passed}</span>
+                            <span class="font-bold ml-auto ${data.status === 'Accepted' ? 'text-green-500' : 'text-red-500'}">${data.status}</span>
+                        </div>
+                    `;
+                    data.results.forEach((testCase, index) => {
+                        const passed = testCase.passed;
+
+                        // Escape HTML helper
+                        const escapeHtml = (text) => {
+                            if (!text) return '';
+                            return text.toString()
+                                .replace(/&/g, "&amp;")
+                                .replace(/</g, "&lt;")
+                                .replace(/>/g, "&gt;")
+                                .replace(/"/g, "&quot;")
+                                .replace(/'/g, "&#039;");
+                        }
+
+                        html += `
+                            <div class="mb-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border-l-4 ${passed ? 'border-green-500' : 'border-red-500'}">
+                                <div class="flex flex-wrap items-center gap-2 mb-2 font-medium">
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold ${passed ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'} uppercase">${passed ? 'Passed' : 'Failed'}</span>
+                                    <span>Test Case ${index + 1}</span>
+                                </div>
+                                <div class="text-xs text-slate-600 dark:text-slate-400 font-mono mt-2 space-y-2">
+                                    <div><strong class="text-slate-900 dark:text-white uppercase tracking-wider text-[10px]">Input</strong><br><div class="break-all bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-700 mt-1">${escapeHtml(testCase.input)}</div></div>
+                                    <div><strong class="text-slate-900 dark:text-white uppercase tracking-wider text-[10px]">Expected</strong><br><div class="break-all bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-700 mt-1">${escapeHtml(testCase.expected)}</div></div>
+                                    <div><strong class="text-slate-900 dark:text-white uppercase tracking-wider text-[10px]">Output</strong><br><div class="break-all bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-700 mt-1 max-h-32 overflow-y-auto">${escapeHtml(testCase.output)}</div></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if (data.error) {
+                        html += `
+                            <div class="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex flex-col">
+                               <span class="text-red-700 dark:text-red-300 font-bold mb-1 status-badge failed">Status Error</span>
+                               <span class="text-sm text-red-700 dark:text-red-300 font-mono whitespace-pre-wrap">${data.error}</span>
+                            </div>
+                        `;
+                    }
+                    testResultsDiv.innerHTML = html;
+                }
+
+                // --- Panel 2: Execution Metrics ---
+                const execDiv = document.getElementById('executionMetrics');
+                execDiv.innerHTML = `
+                    <div class="flex justify-between py-3 border-b border-slate-100 dark:border-slate-800">
+                        <span class="font-medium text-slate-500 dark:text-slate-400">Execution Time</span>
+                        <span class="font-bold text-primary">${data.execution_time}s</span>
+                    </div>
+                    <div class="flex justify-between py-3 border-b border-slate-100 dark:border-slate-800">
+                        <span class="font-medium text-slate-500 dark:text-slate-400">Cases Passed</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">${data.test_cases_passed}/${data.total_test_cases}</span>
+                    </div>
+                    <div class="flex justify-between py-3 border-b border-slate-100 dark:border-slate-800">
+                        <span class="font-medium text-slate-500 dark:text-slate-400">Status</span>
+                        <span class="font-bold ${data.status === 'Accepted' ? 'text-green-500' : 'text-red-500'}">${data.status}</span>
+                    </div>
+                `;
+
+                // --- Smart Code Analysis UI ---
+                const smartAnalysisDiv = document.getElementById('smartCodeAnalysis');
+                const qr = data.quality_report;
+
+                if (qr && qr.raw_metrics) {
+                    smartAnalysisDiv.classList.remove('hidden');
+
+                    const rm = qr.raw_metrics;
+
+                    // Scores
+                    const overall = qr.overall_score || 0;
+                    const maintain = qr.maintainability_score || 0;
+
+                    const getScoreColor = (score) => {
+                        if (score >= 80) return 'text-green-500 border-green-500';
+                        if (score >= 60) return 'text-orange-500 border-orange-500';
+                        return 'text-red-500 border-red-500';
+                    };
+
+                    // Overall Quality
+                    const uiOverallScore = document.getElementById('uiOverallScore');
+                    uiOverallScore.textContent = Math.round(overall);
+                    uiOverallScore.className = `text-3xl font-bold ${getScoreColor(overall).split(' ')[0]}`;
+                    uiOverallScore.parentElement.className = `relative w-24 h-24 flex items-center justify-center rounded-full border-4 ${getScoreColor(overall).split(' ')[1]}`;
+
+                    // Maintainability
+                    const uiMaintainScore = document.getElementById('uiMaintainScore');
+                    uiMaintainScore.textContent = Math.round(maintain);
+                    uiMaintainScore.className = `text-3xl font-bold ${getScoreColor(maintain).split(' ')[0]}`;
+                    uiMaintainScore.parentElement.className = `relative w-24 h-24 flex items-center justify-center rounded-full border-4 ${getScoreColor(maintain).split(' ')[1]}`;
+
+                    // Readability
+                    document.getElementById('uiCommentRatio').textContent = rm.comment_ratio !== undefined ? `${rm.comment_ratio}%` : '--';
+                    document.getElementById('uiAvgLineLength').textContent = rm.average_line_length !== undefined ? `${rm.average_line_length} chars` : '--';
+                    document.getElementById('uiLongLines').textContent = rm.long_lines_count !== undefined ? rm.long_lines_count : '--';
+
+                    // Complexity
+                    document.getElementById('uiCyclomatic').textContent = rm.cyclomatic_complexity !== undefined ? rm.cyclomatic_complexity : '--';
+                    document.getElementById('uiMaxNesting').textContent = rm.max_nesting_depth !== undefined ? rm.max_nesting_depth : '--';
+                    document.getElementById('uiFunctions').textContent = rm.total_functions !== undefined ? rm.total_functions : '--';
+
+                    // Variables
+                    document.getElementById('uiTotalVars').textContent = rm.total_variables !== undefined ? rm.total_variables : '--';
+                    document.getElementById('uiMeaningfulNames').textContent = rm.meaningful_naming_ratio !== undefined ? `${rm.meaningful_naming_ratio}%` : '--';
+                    document.getElementById('uiShortNames').textContent = rm.short_variable_names !== undefined ? rm.short_variable_names : '--';
+
+                    // Suggestions
+                    const suggestionsList = document.getElementById('uiSuggestionsList');
+                    suggestionsList.innerHTML = '';
+                    if (qr.suggestions && qr.suggestions.length > 0) {
+                        qr.suggestions.forEach(suggestion => {
+                            const mappedText = suggestion.suggestion ? suggestion.suggestion : suggestion;
+                            // Escape HTML
+                            const escapeHtml = (text) => text.toString().replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+
+                            const div = document.createElement('div');
+                            div.className = 'flex gap-3 items-start';
+                            div.innerHTML = `
+                                <span>💡</span>
+                                <span class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed text-justify">${escapeHtml(mappedText)}</span>
+                            `;
+                            suggestionsList.appendChild(div);
+                        });
+                    } else {
+                        suggestionsList.innerHTML = '<p class="text-slate-500 text-sm italic">Code quality looks good! No major suggestions.</p>';
+                    }
+                } else {
+                    smartAnalysisDiv.classList.add('hidden');
+                }
+
+            } catch (error) {
+                // Better error handling
+                let errorMessage = 'Error submitting code: ';
+
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage += 'Network error. Please check if the server is running and try again.';
+                } else if (error.message) {
+                    errorMessage += error.message;
+                } else {
+                    errorMessage += 'Unknown error occurred. Please try again.';
+                }
+
+                // Show error in results section instead of alert
+                resultsDiv.classList.remove('hidden');
+                const errorDiv = document.getElementById('errorMessage');
+                if (errorDiv) {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.querySelector('p').textContent = errorMessage;
+                } else {
+                    // Fallback to alert if error div doesn't exist
+                    alert(errorMessage);
+                }
+
+                console.error('Submission error:', error);
+
+                // Log additional debugging info
+                console.error('Request URL:', window.location.href);
+                console.error('Request method: POST');
+                console.error('Error type:', error.name);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalSubmitHTML;
+                }
+                if (runBtn) {
+                    runBtn.disabled = false;
+                    runBtn.innerHTML = originalRunHTML;
+                }
+            }
+        }
+
+        // Submit button handler
+        if (submitBtn) {
+            submitBtn.addEventListener('click', submitCode);
+        }
+
+        // Run Test button handler (executes code and shows results)
+        if (runBtn) {
+            runBtn.addEventListener('click', submitCode);
+        }
+
+        // Language change handler
+        if (languageSelect) {
+            languageSelect.addEventListener('change', (e) => {
+                const language = e.target.value;
+                if (window.CodeEditor && window.CodeEditor.isReady()) {
+                    window.CodeEditor.changeLanguage(language);
+                }
+            });
+        }
+
+        // Handle window resize for editor
+        window.addEventListener('resize', () => {
+            if (window.CodeEditor && window.CodeEditor.isReady()) {
+                window.CodeEditor.resize();
+            }
+        });
+    </script>
+</body>
+
+</html>

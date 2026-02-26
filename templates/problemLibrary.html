@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - Problem Library</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/dashboard" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Dashboard
+            </a>
+            <h1 class="text-4xl font-bold mb-2">Problem Library</h1>
+            <p class="text-slate-500">Practice coding problems and improve your skills</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mb-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Search</label>
+                    <input type="text" name="search" value="{{ current_search }}" placeholder="Search problems..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Difficulty</label>
+                    <select name="difficulty" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+                        <option value="">All Difficulties</option>
+                        <option value="Easy" {% if current_difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                        <option value="Medium" {% if current_difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                        <option value="Hard" {% if current_difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select name="category" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                        Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Problems Grid -->
+        {% if problems %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for problem in problems %}
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:border-primary transition-all cursor-pointer" onclick="window.location.href='/solve/{{ problem.id }}'">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-xl font-bold">{{ problem.title }}</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold {% if problem.difficulty == 'Easy' %}bg-green-500/10 text-green-500{% elif problem.difficulty == 'Medium' %}bg-orange-500/10 text-orange-500{% else %}bg-rose-500/10 text-rose-500{% endif %}">
+                        {{ problem.difficulty }}
+                    </span>
+                </div>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">{{ problem.description[:150] }}...</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500">{{ problem.category }}</span>
+                    <span class="text-primary font-bold flex items-center gap-1">
+                        Solve
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center">
+            <span class="material-symbols-outlined text-6xl text-slate-400 mb-4">code_off</span>
+            <h3 class="text-xl font-bold mb-2">No Problems Available</h3>
+            <p class="text-slate-500">Check back later or contact an admin to add problems.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+

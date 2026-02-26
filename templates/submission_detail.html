@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CodeSphere - Submission Details</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/submissions" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Submissions
+            </a>
+            <h1 class="text-4xl font-bold mb-2">Submission Details</h1>
+            {% if submission.problem %}
+            <p class="text-slate-500">{{ submission.problem.title }}</p>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Submission Info -->
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-xl font-bold mb-4">Submission Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-sm text-slate-500">Status:</span>
+                        <span class="ml-2 px-3 py-1 rounded-full text-xs font-bold {% if submission.status == 'Accepted' %}bg-green-500/10 text-green-500{% elif submission.status == 'Runtime Error' %}bg-red-500/10 text-red-500{% else %}bg-orange-500/10 text-orange-500{% endif %}">
+                            {{ submission.status }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Language:</span>
+                        <span class="ml-2 font-mono">{{ submission.language|title }}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Test Cases:</span>
+                        <span class="ml-2 font-bold">{{ submission.test_cases_passed }}/{{ submission.total_test_cases }} passed</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Execution Time:</span>
+                        <span class="ml-2 font-mono">{% if submission.execution_time %}{{ "%.3f"|format(submission.execution_time) }}s{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Submitted:</span>
+                        <span class="ml-2">{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Quality Report -->
+            {% if submission.quality_report %}
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-xl font-bold mb-4">Code Quality Report</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Overall Score</span>
+                            <span class="font-bold">{{ "%.1f"|format(submission.quality_report.overall_score) }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: {{ submission.quality_report.overall_score }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Readability</span>
+                            <span class="font-bold">{{ "%.1f"|format(submission.quality_report.readability_score) }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: {{ submission.quality_report.readability_score }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Maintainability</span>
+                            <span class="font-bold">{{ "%.1f"|format(submission.quality_report.maintainability_score) }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: {{ submission.quality_report.maintainability_score }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Efficiency</span>
+                            <span class="font-bold">{{ "%.1f"|format(submission.quality_report.efficiency_score) }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: {{ submission.quality_report.efficiency_score }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Time Complexity:</span>
+                        <span class="ml-2 font-mono font-bold">{{ submission.quality_report.time_complexity }}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Space Complexity:</span>
+                        <span class="ml-2 font-mono font-bold">{{ submission.quality_report.space_complexity }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Code -->
+        <div class="mt-6 bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-xl font-bold mb-4">Your Code</h2>
+            <pre class="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto font-mono text-sm"><code>{{ submission.code }}</code></pre>
+        </div>
+
+        <!-- Quality Feedback -->
+        {% if submission.quality_report and submission.quality_report.detailed_feedback %}
+        <div class="mt-6 bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-xl font-bold mb-4">Detailed Feedback</h2>
+            <p class="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{{ submission.quality_report.detailed_feedback }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Suggestions -->
+        {% if submission.quality_report and submission.quality_report.suggestions %}
+        <div class="mt-6 bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-xl font-bold mb-4">Suggestions</h2>
+            <div class="space-y-3">
+                {% set suggestions = submission.quality_report.suggestions|from_json %}
+                {% for suggestion in suggestions %}
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-bold text-sm">{{ suggestion.category }}</span>
+                        <span class="text-xs px-2 py-1 rounded {% if suggestion.priority == 'high' %}bg-red-500/10 text-red-500{% elif suggestion.priority == 'medium' %}bg-orange-500/10 text-orange-500{% else %}bg-green-500/10 text-green-500{% endif %}">
+                            {{ suggestion.priority }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">{{ suggestion.issue }}</p>
+                    <p class="text-sm font-medium">💡 {{ suggestion.suggestion }}</p>
+                </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-slate-500 text-sm">No suggestions available.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+

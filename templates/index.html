@@ -1,128 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeInsight - Online Coding Judge</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CodeSphere | Practice. Improve. Ace Coding.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .glow-overlay {
+            background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(19, 164, 236, 0.08), transparent 40%);
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>CodeInsight</h1>
-            <p class="subtitle">Online Coding Judge</p>
-        </header>
-
-        <div class="problem-section">
-            <h2>Problem Statement</h2>
-            <div class="problem-content">
-                <h3>Find Missing Numbers</h3>
-                <p><strong>Problem Statement:</strong></p>
-                <p>You are given an array of integers where each number is in the range [1, n]. Some numbers appear twice and others appear once. Return all numbers in the range [1, n] that do not appear in the array.</p>
-                <p><strong>Example:</strong></p>
-                <pre>Input: 4 3 2 7 8 2 3 1
-Output: 5 6</pre>
-            </div>
-        </div>
-
-        <div class="editor-section">
-            <div class="editor-header">
-                <label for="language">Language:</label>
-                <select id="language" disabled>
-                    <option value="python" selected>Python</option>
-                </select>
-            </div>
-            <div id="codeEditor" class="monaco-editor-container"></div>
-        </div>
-
-        <div class="button-section">
-            <button id="runBtn" class="btn btn-run">Run</button>
-            <button id="submitBtn" class="btn btn-submit">Submit</button>
-        </div>
-
-        <div id="runOutput" class="output-section" style="display: none;">
-            <h3>Test Case 1 Result</h3>
-            <div class="run-test-info">
-                <div class="test-info-item">
-                    <span class="label">Input:</span>
-                    <span id="runInput" class="value"></span>
-                </div>
-                <div class="test-info-item">
-                    <span class="label">Expected:</span>
-                    <span id="runExpected" class="value"></span>
-                </div>
-                <div class="test-info-item">
-                    <span class="label">Your Output:</span>
-                    <span id="runOutputContent" class="value"></span>
-                </div>
-                <div class="test-info-item">
-                    <span class="label">Status:</span>
-                    <span id="runStatus" class="value"></span>
-                </div>
-            </div>
-            <div id="runExecutionTime" class="execution-time"></div>
-        </div>
-
-        <div id="submitResults" class="results-section" style="display: none;">
-            <h3>Submission Results</h3>
-            <div class="results-summary">
-                <div class="summary-item">
-                    <span class="label">Test Cases Passed:</span>
-                    <span id="passedCount" class="value">0</span> / <span id="totalCount" class="value">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Execution Time:</span>
-                    <span id="totalExecutionTime" class="value">0</span> ms
-                </div>
-            </div>
-            <div id="testCasesTable" class="test-cases-table"></div>
-        </div>
-
-        <!-- Smart Analysis Section -->
-        <div id="analysisResults" class="analysis-section" style="display: none;">
-            <h3>Smart Code Analysis</h3>
-            
-            <div class="analysis-grid">
-                <!-- Scores -->
-                <div class="analysis-card score-card">
-                    <h4>Overall Quality</h4>
-                    <div class="score-circle" id="overallScore">0</div>
-                </div>
-                
-                <div class="analysis-card score-card">
-                    <h4>Maintainability</h4>
-                    <div class="score-circle" id="maintainabilityIndex">0</div>
-                </div>
-                
-                <!-- Metrics -->
-                <div class="analysis-card metrics-card">
-                    <h4>Readability</h4>
-                    <ul id="readabilityMetrics" class="metrics-list"></ul>
-                </div>
-                
-                <div class="analysis-card metrics-card">
-                    <h4>Complexity</h4>
-                    <ul id="complexityMetrics" class="metrics-list"></ul>
-                </div>
-
-                <div class="analysis-card metrics-card">
-                    <h4>Variables</h4>
-                    <ul id="variableMetrics" class="metrics-list"></ul>
-                </div>
-            </div>
-
-            <!-- Suggestions -->
-            <div class="analysis-suggestions">
-                <h4>Suggestions for Improvement</h4>
-                <ul id="suggestionsList"></ul>
-            </div>
-        </div>
-
-        <div id="errorMessage" class="error-message" style="display: none;"></div>
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
-
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<div class="relative min-h-screen flex flex-col">
+<!-- Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="text-primary">
+<svg class="w-8 h-8" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-xl font-bold tracking-tight">CodeSphere</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Problems</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Contests</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Rankings</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Discuss</a>
+</nav>
+<div class="flex items-center gap-3">
+                <a href="/login" class="px-4 py-2 text-sm font-bold hover:text-primary transition-colors">Login</a>
+                <a href="/login" class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20">
+                        Register
+                    </a>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<main class="flex-grow">
+<section class="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-50">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px]"></div>
+</div>
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-4">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary w-fit border border-primary/20 uppercase tracking-widest">
+                                The Ultimate Coding Playground
+                            </span>
+<h1 class="text-5xl md:text-7xl font-black leading-[1.1] tracking-tight text-slate-900 dark:text-white">
+                                Practice. Improve. <br/>
+<span class="text-primary">Ace Coding.</span>
+</h1>
+<p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
+                                Master data structures and algorithms with our curated problem sets and real-time quality feedback.
+                            </p>
+</div>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-xl shadow-primary/25 flex items-center justify-center gap-2">
+                                Get Started Free
+                                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/50 px-8 py-4 rounded-xl text-lg font-bold transition-all flex items-center justify-center">
+                                View Challenges
+                            </button>
+</div>
+<div class="flex items-center gap-4 text-slate-500 text-sm">
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-background-dark" data-alt="User avatar 1 portrait circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNH04K6bvhedId3Z0ZqQG9UZZjrRcBabI7Gd-1_DbivA7CAxcm4zN3xUb8MniwwmUY84rir9qMFiNvmQ442pXr15FMDQsd1sUls_ov4ezWllQzXH8WHMeMqYgytTqdT5cck4HPsZYaSWeswK6AI-1CeGaS6GFJcXypsxsfuWTo1ggLLTRU6nhllHY2y-x93SdeLFRuVleRjkMDWT33pkjXXJ5PJlGm1UsJllh4aHQaHogqR6m0j04XV3VS5D3ADWUb-zEM4j6v7eE"/>
+<img class="w-8 h-8 rounded-full border-2 border-background-dark" data-alt="User avatar 2 portrait circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaB5TPLzurtsI_y4WCj2_BlUymVt66pETGdWti2Ov6nx60pqtX0Y14z-Tx2qNs1nuI-OhbQ5mu8bxOIeP0hgDyjolEMjLU7uGRE9kNGt84NIKQOrenELeZWdi270pJoZCSgM-j3WoD5Iy6maISWxvomtt0zL4E-SNru6cFwcVp8wxVAALqenTctHN4BjYBLB7D-O4rTXh0IANQwii2KIcTgcJBknXCvBj_0QI92OwC2E7hTrFZHVXgtTlX--SB6c9OoZPYqKSqA_I"/>
+<img class="w-8 h-8 rounded-full border-2 border-background-dark" data-alt="User avatar 3 portrait circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnergnBV7zLSlcZgibzowaOqOPIyraeoTRXMycvYKUw6CK8DGeg304DELLua3W78PXirOI1oBiGKEr5zQH0PpX66OC9s2K2unlVRg1Lelv466x2_9FFLdS8RVJWIdcjYzqfCBAL2Ms2eUA005GuGy3Y4pk-agFgPVkE2_OCn-IrS3K9bClZ-Qp5agGbBawB2JGSbH6NdlJr-Dz_FAQOeoI2AP1QbWNM8QeCqw2QXs3za8iORl8WKiq9iaKSjqLK2CAuVm5TYo_i5A"/>
+</div>
+<span>Joined by 10k+ developers this month</span>
+</div>
+</div>
+<div class="relative">
+<div class="bg-slate-900 rounded-2xl p-2 shadow-2xl border border-slate-800 overflow-hidden">
+<div class="flex items-center gap-2 px-4 py-2 bg-slate-800/50 border-b border-slate-700">
+<div class="flex gap-1.5">
+<div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+</div>
+<span class="text-xs font-mono text-slate-400 ml-4 italic">solution.py</span>
+</div>
+<div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto">
+<p><span class="text-purple-400">def</span> <span class="text-blue-400">solve_problem</span>(nums, target):</p>
+<p class="pl-4 text-slate-500"># Use hash map for O(n) lookup</p>
+<p class="pl-4">prev_map = {}</p>
+<p class="pl-4 pt-2 text-purple-400">for <span class="text-white">i, n</span> in <span class="text-blue-400">enumerate</span>(nums):</p>
+<p class="pl-8">diff = target - n</p>
+<p class="pl-8 text-purple-400">if <span class="text-white">diff</span> in <span class="text-white">prev_map:</span></p>
+<p class="pl-12 text-blue-400">return <span class="text-slate-300">[prev_map[diff], i]</span></p>
+<p class="pl-8">prev_map[n] = i</p>
+</div>
+<div class="bg-primary/10 border-t border-primary/20 p-4 flex items-center justify-between">
+<span class="text-xs text-primary font-bold uppercase tracking-widest">Quality score: 98%</span>
+<div class="flex gap-1">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+<span class="w-2 h-2 rounded-full bg-primary/20"></span>
+</div>
+</div>
+</div>
+<!-- Abstract decorative elements -->
+<div class="absolute -z-10 -bottom-6 -right-6 w-full h-full bg-primary/5 rounded-2xl blur-xl"></div>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-24 bg-slate-50 dark:bg-slate-900/30">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col gap-4 mb-16 text-center md:text-left">
+<h2 class="text-3xl md:text-4xl font-black tracking-tight">Our Key Features</h2>
+<p class="text-slate-600 dark:text-slate-400 max-w-2xl text-lg">
+                            Tools designed to help you become a top-tier developer, from basic syntax to advanced algorithms.
+                        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="group bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-primary transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">code</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Solve Coding Problems</h3>
+<p class="text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Access 1000+ challenges from easy to hard, covering all major data structures and algorithms.
+                            </p>
+</div>
+<!-- Card 2 -->
+<div class="group bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-primary transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Quality Reports</h3>
+<p class="text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Get AI-driven insights into your code's complexity, style, and potential performance bottlenecks.
+                            </p>
+</div>
+<!-- Card 3 -->
+<div class="group bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-primary transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">monitoring</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Track Progress</h3>
+<p class="text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Visualize your growth with detailed performance analytics and daily streak tracking.
+                            </p>
+</div>
+<!-- Card 4 -->
+<div class="group bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-primary transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">emoji_events</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Weekly Contests</h3>
+<p class="text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Compete with developers worldwide in weekly sprints and climb the global leaderboard.
+                            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 relative overflow-hidden">
+<div class="max-w-4xl mx-auto px-6 relative z-10">
+<div class="bg-primary rounded-3xl p-8 md:p-16 flex flex-col items-center text-center gap-8 shadow-2xl shadow-primary/20">
+<h2 class="text-3xl md:text-5xl font-black text-white leading-tight">
+                            Ready to start your journey?
+                        </h2>
+<p class="text-white/80 text-lg md:text-xl max-w-xl">
+                            Join thousands of developers and start solving problems today. No credit card required.
+                        </p>
+<button class="bg-white text-primary px-10 py-5 rounded-2xl text-xl font-black hover:bg-slate-100 transition-all shadow-lg flex items-center gap-3">
+                            Create Free Account
+                            <span class="material-symbols-outlined">rocket_launch</span>
+</button>
+</div>
+</div>
+<!-- Background decoration -->
+<div class="absolute inset-0 -z-10 opacity-30">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[150px]"></div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="border-t border-slate-200 dark:border-slate-800 py-12 bg-background-light dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-12">
+<div class="col-span-2 flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<div class="text-primary">
+<svg class="w-6 h-6" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-lg font-bold tracking-tight">CodeSphere</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs leading-relaxed">
+                            Empowering the next generation of developers through intelligent practice and community.
+                        </p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-sm uppercase tracking-wider">Platform</h4>
+<nav class="flex flex-col gap-2">
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Problems</a>
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Contests</a>
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Enterprise</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-sm uppercase tracking-wider">Company</h4>
+<nav class="flex flex-col gap-2">
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">About</a>
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Careers</a>
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Contact</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-sm uppercase tracking-wider">Legal</h4>
+<nav class="flex flex-col gap-2">
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-sm text-slate-500 hover:text-primary transition-colors" href="#">Terms</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-sm uppercase tracking-wider">Social</h4>
+<div class="flex gap-4">
+<a class="text-slate-400 hover:text-primary transition-colors" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+<a class="text-slate-400 hover:text-primary transition-colors" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.493-1.1-1.1s.493-1.1 1.1-1.1 1.1.493 1.1 1.1-.493 1.1-1.1 1.1zm9 6.891h-2v-3.868c0-1.235-1.159-1.126-1.159-1.126s-1.159.083-1.159 1.126v3.868h-2v-6h2v.883s.766-1.217 2.582-1.217c1.817 0 2.736 1.406 2.736 3.484v2.85z"></path></svg>
+</a>
+</div>
+</div>
+</div>
+<div class="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2024 CodeSphere. All rights reserved.</p>
+<div class="flex gap-6">
+<span class="flex items-center gap-2 text-xs text-slate-500">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            All Systems Operational
+                        </span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</body></html>
